@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title>PWA - Camera</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="fontawesome-free-5.9.0-web/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="css/hello-world.css" media="all">
+</head>
+
+<body>
+  <div class="root">
+    <div class="header">
+      <a href="index.html">
+        <i class="fas fa-arrow-left"></i>
+        <span class="title">Camera</span>
+      </a>
+      <i class="fas fa-share-alt hide"></i>
+    </div>
+
+    <div class="error-container">
+      <p class="error"></p>
+    </div>
+
+    <div class="content camera">
+      <video id="video">Video stream not available.</video>
+
+      <div class="camera-flip">
+        <i class="fas fa-sync-alt"></i>
+      </div>
+
+      <div class="camera-button" id="myButton">
+        <div class="camera-button-level-1">
+          <div class="camera-button-level-2"></div>
+        </div>
+        <div class="camera-button-bottom"></div>
+      </div>
+
+      <div class="canvas-wrapper hide">
+        <canvas id="canvas">Your browser does not support the HTML5 canvas tag.</canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    var width = 320;
+    var height = 0;
+    var streaming = false;
+
+    var video = null;
+    var canvas = null;
+    var photo = null;
+    var startbutton = null;
+
+    function startup() {
+      video = document.getElementById("video");
+      canvasWrapper = document.querySelector(".canvas-wrapper");
+      shareButton = document.querySelector(".fa-share-alt");
+      canvas = document.getElementById("canvas");
+      startbutton = document.getElementById("myButton");
+
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: false })
+        .then(function (stream) {
+          video.srcObject = stream;
+          video.play();
+        })
+        .catch(function (err) {
+          console.log("An error occurred: " + err);
+        });
+
+      video.addEventListener("canplay", function (ev) {
+        if (!streaming) {
+          height = video.videoHeight / (video.videoWidth / width);
+          if (isNaN(height)) {
+            height = width / (4 / 3);
+          }
+          video.setAttribute("width", width);
+          video.setAttribute("height", height);
+          canvas.setAttribute("width", width);
+          canvas.setAttribute("height", height);
+          streaming = true;
+        }
+      });
+
+      function takepicture() {
+        var context = canvas.getContext("2d");
+        if (width && height) {
+          canvas.width = width;
+          canvas.height = height;
+          context.drawImage(video, 0, 0, width, height);
+          document.querySelectorAll('.hide').forEach(n => n.classList.remove('hide'));
+        }
+      }
+
+      function sharePicture() {
+        const title = "Share title";
+        const text = "Share test text";
+        const url = "http://google.com";
+        // const pic = canvas.toDataURL("image/jpeg");
+        const shareData = {
+          // files: [pic],
+          title,
+          text,
+          url,
+        };
+
+        const error = document.querySelector('.error');
+        console.log(shareData);
+
+        if (navigator.share && navigator.canShare(shareData)) {
+          navigator.share(shareData)
+            .then(s => {
+              error.innerHTML = 'Successful share' + s;
+
+            })
+            .catch(e => {
+              error.innerHTML = 'Sharing failed: ' + e;
+            });
+        }
+      }
+
+      startbutton.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        takepicture();
+      });
+
+      canvasWrapper.addEventListener("click", sharePicture);
+      shareButton.addEventListener("click", sharePicture);
+    }
+
+    window.addEventListener("load", startup);
+  </script>
+</body>
+
+</html>

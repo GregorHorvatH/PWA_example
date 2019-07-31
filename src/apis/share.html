@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body {
+                text-align: center;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            button {
+                background: none;
+                border: 3px #444;
+                border-style: dashed solid;
+                padding: 5px 10px;
+                margin: 10px;
+                min-width: 100px;
+            }
+            input {
+                border: 1px solid #444;
+
+                width: 200px;
+                padding: 2px 5px;
+                display: block;
+                margin: 5px auto;
+            }
+        </style>
+    </head>
+    <body cz-shortcut-listen="true">
+        <h1>Share API</h1>
+        <div>
+            <label>Title <input id="title" value="Hey share it"></label>
+            <label>Message <input id="text" value="You received a message"></label>
+            <label>Url <input id="url" value="http://helloworld-eab5b.firebaseapp.com"></label>
+            <button onclick="sharePlz()">share</button>
+        </div>
+    
+    <script>
+        const sharePlz = () => {
+            const title = document.getElementById('title').value;
+            const text = document.getElementById('text').value;
+            const url = document.getElementById('url').value;
+            if (navigator.share) {
+                navigator.share({
+                    title,
+                    text,
+                    url,
+                })
+                    .then(s=>console.log('Successful share', s))
+                    .catch(console.log);
+            }
+        }
+
+    </script>
+</body></html>

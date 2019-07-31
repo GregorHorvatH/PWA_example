@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body {
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+      }
+      h4 {
+        margin: 10px auto;
+      }
+      #video {
+        border: 1px solid black;
+        box-shadow: 2px 2px 3px black;
+        width: 320px;
+        height: 240px;
+      }
+
+      #photo {
+        border: 1px solid black;
+        box-shadow: 2px 2px 3px black;
+        width: 320px;
+        height: 240px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      #canvas {
+        display: none;
+      }
+
+      .camera {
+        width: 340px;
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      .output {
+        width: 340px;
+        display: inline-block;
+      }
+
+      #startbutton {
+        display: block;
+        position: relative;
+        margin-left: auto;
+        margin-right: auto;
+        bottom: 32px;
+        background-color: #888;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 1);
+      }
+
+      .contentarea {
+        font-size: 16px;
+        margin: 0 auto;
+        max-width: 760px;
+      }
+			#filter a {
+        border: 1px solid #444;
+        padding: 3px 5px;
+        display: inline-block;
+        margin: 7px 2px;
+			}
+    </style>
+  </head>
+  <body cz-shortcut-listen="true">
+    <div class="contentarea">
+      <h4>
+        Media capture
+      </h4>
+      <div>
+        <div class="camera">
+          <video id="video" width="320" height="240">Video stream not available.</video>
+          <button id="startbutton">Take photo</button>
+        </div>
+        <canvas id="canvas" width="320" height="240"> </canvas>
+        <div class="output" id="photo" style="background-color: rgb(170, 170, 170);">
+        </div>
+			</div>
+			<div id="filter">
+				<a data-type="drop-shadow(16px 16px 20px red) invert(75%)">Drop shadow</a>
+				<a data-type="contrast(200%)">Contrast</a>
+				<a data-type="grayscale(80%)">Grey</a>
+				<a data-type="hue-rotate(90deg)">Hue rotate</a>
+        <a data-type="blur(5px)">Blur</a>
+				<a data-type="">Normal</a>
+			</div>
+    </div>
+  
+  <script>
+    (function() {
+      var width = 320;
+      var height = 0;
+      var streaming = false;
+
+      var video = null;
+      var canvas = null;
+      var photo = null;
+      var startbutton = null;
+
+      function startup() {
+        video = document.getElementById("video");
+        canvas = document.getElementById("canvas");
+        photo = document.getElementById("photo");
+        startbutton = document.getElementById("startbutton");
+
+        navigator.mediaDevices
+          .getUserMedia({ video: true, audio: false })
+          .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+          })
+          .catch(function(err) {
+            console.log("An error occurred: " + err);
+          });
+
+        video.addEventListener(
+          "canplay",
+          function(ev) {
+            if (!streaming) {
+              height = video.videoHeight / (video.videoWidth / width);
+              if (isNaN(height)) {
+                height = width / (4 / 3);
+              }
+              video.setAttribute("width", width);
+              video.setAttribute("height", height);
+              canvas.setAttribute("width", width);
+              canvas.setAttribute("height", height);
+              streaming = true;
+            }
+          },
+          false
+        );
+
+        startbutton.addEventListener(
+          "click",
+          function(ev) {
+            takepicture();
+            ev.preventDefault();
+          },
+          false
+        );
+
+        clearphoto();
+      }
+
+      function clearphoto() {
+        photo.style.backgroundColor = '#AAA';
+        photo.style.backgroundImage = '';
+      }
+
+      function takepicture() {
+        var context = canvas.getContext("2d");
+        if (width && height) {
+          canvas.width = width;
+          canvas.height = height;
+          context.drawImage(video, 0, 0, width, height);
+
+          var data = canvas.toDataURL("image/png");
+          photo.style.backgroundImage = `url(${data})`;
+        } else {
+          clearphoto();
+        }
+      }
+
+			document.getElementById('filter').addEventListener('click', e => {
+				photo.style.filter = e.target.getAttribute('data-type');
+			})
+
+      window.addEventListener("load", startup, false);
+    })();
+  </script>
+
+</body></html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="Description" content="PWA with firebase-messaging">
+  <meta name="theme-color" content="#125688" />
+
+  <title>PWA on steroids</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="fontawesome-free-5.9.0-web/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="css/hello-world.css" media="all">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- icon in the highest resolution we need it for -->
+  <link rel="icon" sizes="192x192" href="icons/icon-192x192.png">
+
+  <!-- reuse same icon for Safari -->
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+</head>
+
+<body>
+  <div class="root">
+    <div class="header">
+      <i class="fas fa-bars"></i>
+      <span class="title">Home</span>
+    </div>
+
+    <div class="content">
+      <h1 class="vertical-container">PWA on steroids</h1>
+
+      <p id="token"></p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus error, debitis nostrum rem ex facilis tempora
+        vitae molestiae necessitatibus blanditiis. Adipisci molestiae illum officiis laboriosam quisquam. Error nostrum
+        non rem.</p>
+
+      <ul>
+        <li><a href="apis/network.html">Network Info</a></li>
+        <li><a href="apis/orientation.html">Device orientation</a></li>
+        <li><a href="apis/page-visibility.html">Visibility API</a></li>
+        <li><a href="apis/speech-recognition.html">Speech recognition</a></li>
+        <li><a href="apis/speech-synthesis.html">Speech synthesis</a></li>
+        <li><a href="apis/vibration.html">Vibration API</a></li>
+        <li><a href="apis/share.html">Share API</a></li>
+        <li><a href="apis/battery.html">Battery API</a></li>
+        <li><a href="apis/capture.html">Media Capture API</a></li>
+      </ul>
+
+    </div>
+
+    <div class="footer">
+      <div class="footer-button active">
+        <a href="index.html"><i class="fas fa-home"></i></a>
+      </div>
+      <div class="footer-button">
+        <a href="page1.html"><i class="far fa-user-circle"></i></a>
+      </div>
+      <div class="footer-button">
+        <a href="page2.html" class="notification-wrapper">
+          <i class="far fa-bell"></i>
+          <div class="notification">3</div>
+        </a>
+      </div>
+      <div class="footer-button">
+        <a href="camera.html"><i class="fa fa-camera"></i></a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-messaging.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyAOOsuZwPWQd8-gfQDH8gCI4Kspi2Lk4NM",
+      authDomain: "helloworld-eab5b.firebaseapp.com",
+      databaseURL: "https://helloworld-eab5b.firebaseio.com",
+      projectId: "helloworld-eab5b",
+      storageBucket: "",
+      messagingSenderId: "83456433650",
+      appId: "1:83456433650:web:c3bc76741eca6030"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(function () {
+          console.log('Service Worker Registered');
+        });
+    }
+
+    const messaging = firebase.messaging();
+    messaging.requestPermission()
+      .then(function () {
+        console.log('Notification permission granted.');
+        return messaging.getToken();
+      })
+      .then(function (token) {
+        const tokenBox = document.getElementById('token');
+        tokenBox.innerHTML = token;
+
+        console.log(token);
+      })
+      .catch(function (err) {
+        console.log('Unable to get permission to notify.', err);
+      })
+
+    messaging.onMessage((payload) => {
+      console.log('onMessage: ', payload);
+    });
+  </script>
+</body>
+
+</html>
